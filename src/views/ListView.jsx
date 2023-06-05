@@ -1,16 +1,16 @@
 import { Image, ImageBackground, FlatList, StyleSheet, Text, View } from 'react-native'
+import { Searchbar } from 'react-native-paper';
 import * as ImagePicker from 'expo-image-picker';
 import { useState, useEffect} from 'react';
 import ButtonTitle from '../components/ButtonTitle'
 import React from 'react'
 import {Delete} from '@expo/vector-icons'
-import { Searchbar } from 'react-native-paper';
 
 const ListView = () => {
 
     const [respuesta, setRespuesta] = useState([])
-    const [reload, setReload] = useState(false)
     const [totalCards, setTotalCards] = useState(260)
+    const [searchQuery, setSearchQuery] = useState([]);
 
     useEffect(() => {
 
@@ -26,8 +26,21 @@ const ListView = () => {
         setRespuesta(data.data)
     }
 
+    const onChangeSearch = (query) => {
+        const array = respuesta.filter((elemento) =>{
+        if(elemento.name.toLowerCase().includes(query.toLowerCase())){
+            elemento.search = true
+            return elemento
+        }else{
+            elemento.search = false
+            return elemento
+        }
+        })
+        setSearchQuery(array)
+    }
+
     const renderItem = ({ item, index }) => {
-        if (!item.hidden){
+        if (!item.hidden && item.search){
             return (
                 <ImageBackground source={require('../../assets/FondoAzulOscuro.jpg')} style={{ width: '100%', height: '100%' }}>
                     <View style={{ width: '100%', height: '88%' }}>
@@ -48,8 +61,12 @@ const ListView = () => {
         }}
     return (
         <View style={styles.container}>
+            <Searchbar
+                placeholder="Busqueda de Cartas"
+                onChangeText={onChangeSearch}
+            />
             <View style={styles.body}>
-                <FlatList data={respuesta} renderItem={renderItem} />
+                <FlatList data={searchQuery} renderItem={renderItem} />
             </View>
             <View style={styles.footer}><Text style={styles.texto}> hay {totalCards} cartas en la baraja </Text></View>
         </View>
