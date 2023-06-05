@@ -4,30 +4,16 @@ import * as ImagePicker from 'expo-image-picker';
 import { useState, useEffect} from 'react';
 import ButtonTitle from '../components/ButtonTitle'
 import React from 'react'
-import {Delete} from '@expo/vector-icons'
+import Cartas from '../components/Cartas';
 
 const ListView = () => {
 
-    const [respuesta, setRespuesta] = useState([])
+    const cards = Cartas()
     const [totalCards, setTotalCards] = useState(260)
     const [searchQuery, setSearchQuery] = useState([]);
 
-    useEffect(() => {
-
-        execute()
-      }, [])
-
-    const execute = async () => {
-        const json = await fetch('https://db.ygoprodeck.com/api/v7/cardinfo.php?level=4&attribute=water&sort=atk')
-        if (!json.ok){
-            return alert(`Error al hacer la peticion`);
-        }
-        const data = await json.json()
-        setRespuesta(data.data)
-    }
-
     const onChangeSearch = (query) => {
-        const array = respuesta.filter((elemento) =>{
+        const array = cards.respuesta.filter((elemento) =>{
         if(elemento.name.toLowerCase().includes(query.toLowerCase())){
             elemento.search = true
             return elemento
@@ -48,9 +34,7 @@ const ListView = () => {
                             <Image resizeMode='contain' style={styles.image} source={{ uri: item.card_images[0].image_url}}/>
                         </View>
                         <ButtonTitle icon={"delete"} title={item.name} action={() => {
-                            const refresh = respuesta
-                            refresh[index].hidden = true
-                            setRespuesta(refresh)
+                            cards.dispatchRespuesta({type : "[Hide]", index})
                             setTotalCards(totalCards - 1)
                         }} />
                     </View>
@@ -99,7 +83,7 @@ const styles = StyleSheet.create({
       textAlignVertical: 'center'
     },
     texto: {
-      fontSize: 26,
+      fontSize: 20,
       height: '100%',
       textAlign: 'center',
       textAlignVertical: 'center',
